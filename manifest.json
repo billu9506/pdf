@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Focus Timer PDF Viewer",
+  "version": "1.0.0",
+  "description": "A distraction-free PDF viewer with countdown timer and fullscreen lock",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
