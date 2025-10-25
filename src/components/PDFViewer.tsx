@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
 
 interface PDFViewerProps {
   pdfUrl: string;
@@ -16,16 +19,23 @@ export default function PDFViewer({ pdfUrl, timeRemaining, isFullscreen }: PDFVi
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [scale, setScale] = useState(1.5);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadPDF = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
         const pdf = await loadingTask.promise;
         setPdfDoc(pdf);
         setTotalPages(pdf.numPages);
+        setLoading(false);
       } catch (error) {
         console.error('Error loading PDF:', error);
+        setError('Failed to load PDF. Please try another file.');
+        setLoading(false);
       }
     };
 
@@ -102,7 +112,15 @@ export default function PDFViewer({ pdfUrl, timeRemaining, isFullscreen }: PDFVi
 
       {/* PDF Canvas Container */}
       <div className="flex-1 overflow-auto flex items-center justify-center pt-20 pb-24">
-        <canvas ref={canvasRef} className="shadow-2xl" />
+        {loading && (
+          <div className="text-white text-xl">Loading PDF...</div>
+        )}
+        {error && (
+          <div className="text-red-400 text-xl bg-red-900/50 px-6 py-4 rounded-lg">
+            {error}
+          </div>
+        )}
+        {!loading && !error && <canvas ref={canvasRef} className="shadow-2xl" />}
       </div>
 
       {/* Controls */}
